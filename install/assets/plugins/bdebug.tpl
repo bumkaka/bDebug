@@ -14,7 +14,7 @@
  * @internal    @installset base
  */
  
- if (empty($_SESSION['mgrInternalKey'])) return;
+if (empty($_SESSION['mgrInternalKey'])) return;
 
 $e = &$modx->event; 
 switch ($e->name){
@@ -159,6 +159,11 @@ switch ($e->name){
 			console.log(percent)
 			$('.time',this).css('background-color','rgba(255,0,0,'+(percent/100)+')');
 		})
+		
+		$('.bDebugPopup').css('max-height', $(window).height()-40);
+		$(window).resize(function(){
+		$('.bDebugPopup').css('max-height', $(window).height()-40);
+		})
 	})(jQuery);
 </script>
 
@@ -193,7 +198,7 @@ switch ($e->name){
 		bottom: 20px;
 		box-shadow: 0 0 6px 5px rgba(0, 0, 0, 0.18);
 		font-size: 10px;
-		height: 300px;
+		height: auto;
 		left: 20px;
 		overflow-y: auto;
 		padding: 3px;
