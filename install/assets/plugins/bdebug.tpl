@@ -1,4 +1,21 @@
-if (empty($_SESSION['mgrInternalKey'])) return;
+//<?php
+/**
+ * bDebug 
+ * 
+ * just make MODx evo is easy
+ *
+ * @category    plugin
+ * @version     0.1
+ * @author		By Bumkaka from modx.im
+ * @internal    @properties 
+ * @internal    @events OnWebPageInit,OnWebPagePrerender
+ * @internal	@properties 
+ * @internal    @modx_category Manager and Admin
+ * @internal    @installset base
+ */
+ 
+ 
+ if (empty($_SESSION['mgrInternalKey'])) return;
 
 $e = &$modx->event; 
 switch ($e->name){
