@@ -20,19 +20,6 @@
 	}	
 }
 
-if ( !function_exists('bLog') ){
-	function bLog($title,$code){
-		$code = is_array($code)?'<pre>'.print_r($code,true).'</pre>':$code;
-		$_SESSION['bDebug'][] = array('title'=>$title, 'code'=>$code);
-	}	
-}
-
-if ( !function_exists('bLog') ){
-	function bLog($title,$code){
-		$code = is_array($code)?'<pre>'.print_r($code,true).'</pre>':$code;
-		$_SESSION['bDebug'][] = array('title'=>$title, 'code'=>$code);
-	}	
-}
 
 
 if (empty($_SESSION['mgrInternalKey'])) return;
