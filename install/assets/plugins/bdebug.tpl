@@ -8,12 +8,19 @@
  * @version     0.1
  * @author		By Bumkaka from modx.im
  * @internal    @properties 
- * @internal    @events OnWebPageInit,OnWebPagePrerender
+ * @internal    @events OnWebPageInit,OnWebPagePrerender,OnPageNotFound
  * @internal	@properties 
  * @internal    @modx_category Manager and Admin
  * @internal    @installset base
  */
- 
+ if ( !function_exists('bLog') ){
+	function bLog($title,$code){
+		$code = is_array($code)?'<pre>'.print_r($code,true).'</pre>':$code;
+		$_SESSION['bDebug'][] = array('title'=>$title, 'code'=>$code);
+	}	
+}
+
+
 if (empty($_SESSION['mgrInternalKey'])) return;
 
 $e = &$modx->event; 
@@ -90,7 +97,11 @@ switch ($e->name){
 	break;
 	
 	case 'OnWebPageInit':
+	
 	$modx->dumpSQL = true;
+	$_SESSION['bDebug'] = array();
+	
+	
 	break;
 	
 	
@@ -113,63 +124,91 @@ switch ($e->name){
 
 
 <div id="bDebug">
-	<div class="bDebugPopup"><?=$modx->CustomDebu1g;?><?=$modx->queryCode;?></div>
+	<div class="bPopup bDebugPopup"><?=$modx->queryCode;?></div>
+	<div class="bPopup bCustomPopup">
+		<?php
 	
-	<a id="bDebugPop">&hellip;</a>
+	foreach($_SESSION['bDebug'] as $log){
+		echo '<div class="bCodeBlock"><div class="bTitle">'.$log['title'].'</div><div class="bCode">'.$log['code'].'</div></div>';
+	}
+	
+		?>
+	</div>
+	<a class="bButton" href=".bCustomPopup">Logs</a>
+	<a class="bButton" href=".bDebugPopup" style="margin-right:10px">Query</a>
 	Mem : [^m^], MySQL: [^qt^], [^q^] request(s), PHP: [^p^], total: [^t^], document from [^s^]
 </div>
 
 
 <script>
 	(function($){
-		//$SQLs = $('.bDebugPopup fieldset').clone();
+		if ( $('.bCustomPopup').html() == '' ) $('.bCustomPopup').remove();
+		/*
+		* Create new formated list
+		*/
 		SQL = [];
 		$('.bDebugPopup>br').remove();
 		$('.bDebugPopup fieldset').each(function(){
 			index = $(this).index();
 			tmp = $(this).clone();
-			time = parseFloat( $('legend',tmp).html().split('-')[1].replace(' ','').replace('s','').replace(',','.') ) / 1000;
-			time = time.toFixed(5);
+			time = parseFloat( $('legend',tmp).html().split('-')[1].replace(' ','').replace('s','').replace(',','.') ) ;
+			time = $('legend',tmp).html().indexOf('ms') < 1? time :time / 1000;
+			time = time.toFixed(5)
 			$('legend',tmp).remove();
 			ind = index+1;
-			SQL.push( '<div class="query"><div class="time" time="'+time+'">Query #'+ind+' - '+time+' sec</div><div class="SQL">'+tmp.html()+'</div></div>' )
+			SQL.push( '<div class="bCodeBlock"><div class="bTitle" time="'+time+'">Query #'+ind+' - '+time+' sec</div><div class="bCode">'+tmp.html()+'</div></div>' )
 		});
-		
 		$('.bDebugPopup').html( $( SQL.join(' ') ) );
 		
 		
-		
-		
-		$('.time').click(function(){
-			$(this).parent().find('.SQL').slideToggle("fast");
+		/*
+		* Slide by click on .bTitle
+		*/
+		$('.bTitle').click(function(){
+			$(this).parent().find('.bCode').slideToggle("fast");
 		});
 		
 		
-		$('.bDebugPopup .SQL').click(function(){
+		/*
+		* Get modal executed query
+		*/
+		$('.bDebugPopup .bCode').click(function(){
 			window.open('/bdebugGetResult?sql='+$(this).parent().index(), 'SQL Result', "height=400,width=600,scrollbars=yes");
 		})
 		
 		
-		$('#bDebugPop').click(function(){
-			$('#bDebug').toggleClass('DebugOpened');
+		/*
+		* Show/hide popup
+		*/
+		$('.bButton').click(function(){
+			$( $(this).attr('href') ).siblings('.bPopup').removeClass('DebugOpened');
+			$( $(this).attr('href') ).toggleClass('DebugOpened');
+			return false;
 		})
 		
-		$('.bDebugPopup .query').each(function(){
-			percent = parseFloat( $('.time',this).attr('time') ) / (0.5 / 100);
+		/*
+		* Higlight block with slow query
+		*/
+		$('.bDebugPopup .bCodeBlock').each(function(){
+			percent = parseFloat( $('.bTitle',this).attr('time') ) / (0.5 / 100);
 			console.log(percent)
-			$('.time',this).css('background-color','rgba(255,0,0,'+(percent/100)+')');
-		})
+			$('.bTitle',this).css('background-color','rgba(255,0,0,'+(percent/100)+')');
+		});
 		
-		$('.bDebugPopup').css('max-height', $(window).height()-40);
+		
+		/*
+		* Set popup to  max-height
+		*/
+		$('.bPopup').css('max-height', $(window).height()-40);
 		$(window).resize(function(){
-		$('.bDebugPopup').css('max-height', $(window).height()-40);
+			$('.bPopup').css('max-height', $(window).height()-40);
 		})
 	})(jQuery);
 </script>
 
 
 <style>
-	.query{
+	.bCodeBlock{
 		border: 1px solid grey;
 		border-radius: 3px;
 		box-shadow: 1px 1px 2px 1px rgba(0, 0, 0, 0.11);
@@ -177,22 +216,26 @@ switch ($e->name){
 		overflow:hidden;
 		margin: 0 0 3px 0;
 	}
-	.time{
+	.bTitle{
 		font-weight:bold;
 		padding: 4px 4px 4px 4px;
+		cursor:pointer;
 	}
-	.SQL{
+	.bCode{
 		background: none repeat scroll 0 0 white;
 		border-top: 1px solid gray;
 		display: block;
 		display:none;
 		padding: 0px 4px 4px 4px;
 	}
-	.bDebugPopup .query:hover{
+	.bDebugPopup .bCodeBlock:hover{
 		cursor:pointer;
 		background:rgba(0, 0, 0, 0.09);;
 	}
-	.bDebugPopup{
+	
+	
+	
+	.bPopup{
 		display:none;
 		background: none repeat scroll 0 0 #eee;
 		bottom: 20px;
@@ -208,9 +251,15 @@ switch ($e->name){
 		border: 2px solid rgba(0,0,0,0.56);
 	}
 	
-	.DebugOpened .bDebugPopup{
-		display:block;
-		
+	
+	
+	
+	.bPopup{
+		display:none;
+	}
+	
+	.bPopup.DebugOpened{
+		display:block;		
 	}
 	
 	#bDebug{
@@ -222,26 +271,27 @@ switch ($e->name){
 		height: 14px;
 		left: 0;
 		line-height: 14px;
-		padding: 0 0 0 40px;
+		
 		position: fixed;
 		right: 0;
 		z-index:9999;
 	}
-	#bDebug a{
+	.bButton{
 		background: none repeat scroll 0 0 yellow;
 		border-radius: 2px;
 		cursor: pointer;
 		display: block;
-		font-size: 13px;
+		float: left;
+		font-size: 9px;
 		font-weight: bold;
 		height: 10px;
-		left: 5px;
-		line-height: 4px;
-		padding: 0 0 0 7px;
-		position: absolute;
+		line-height: 8px;
+		margin: 0 0 0 10px;
+		padding: 0 7px 0 7px;
+		position: relative;
 		text-decoration: none;
 		top: 2px;
-		width: 20px;
+		color: black;
 		-webkit-touch-callout: none;
 		-webkit-user-select: none;
 		-khtml-user-select: none;
