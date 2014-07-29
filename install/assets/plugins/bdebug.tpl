@@ -20,6 +20,20 @@
 	}	
 }
 
+if ( !function_exists('bLog') ){
+	function bLog($title,$code){
+		$code = is_array($code)?'<pre>'.print_r($code,true).'</pre>':$code;
+		$_SESSION['bDebug'][] = array('title'=>$title, 'code'=>$code);
+	}	
+}
+
+if ( !function_exists('bLog') ){
+	function bLog($title,$code){
+		$code = is_array($code)?'<pre>'.print_r($code,true).'</pre>':$code;
+		$_SESSION['bDebug'][] = array('title'=>$title, 'code'=>$code);
+	}	
+}
+
 
 if (empty($_SESSION['mgrInternalKey'])) return;
 
@@ -125,16 +139,14 @@ switch ($e->name){
 
 <div id="bDebug">
 	<div class="bPopup bDebugPopup"><?=$modx->queryCode;?></div>
-	<div class="bPopup bCustomPopup">
-		<?php
-	
-	foreach($_SESSION['bDebug'] as $log){
-		echo '<div class="bCodeBlock"><div class="bTitle">'.$log['title'].'</div><div class="bCode">'.$log['code'].'</div></div>';
+	<div class="bPopup bCustomPopup"><?php
+	if ( !empty($_SESSION['bDebug'])){
+		foreach($_SESSION['bDebug'] as $log){
+			echo '<div class="bCodeBlock"><div class="bTitle">'.$log['title'].'</div><div class="bCode">'.$log['code'].'</div></div>';
+		}
 	}
-	
-		?>
-	</div>
-	<a class="bButton" href=".bCustomPopup">Logs</a>
+		?></div>
+	<a class="bButton bCustomPopupA" href=".bCustomPopup">Logs</a>
 	<a class="bButton" href=".bDebugPopup" style="margin-right:10px">Query</a>
 	Mem : [^m^], MySQL: [^qt^], [^q^] request(s), PHP: [^p^], total: [^t^], document from [^s^]
 </div>
@@ -142,7 +154,7 @@ switch ($e->name){
 
 <script>
 	(function($){
-		if ( $('.bCustomPopup').html() == '' ) $('.bCustomPopup').remove();
+		if ( $('.bCustomPopup').html() == '' ) $('.bCustomPopupA').remove();
 		/*
 		* Create new formated list
 		*/
@@ -191,7 +203,6 @@ switch ($e->name){
 		*/
 		$('.bDebugPopup .bCodeBlock').each(function(){
 			percent = parseFloat( $('.bTitle',this).attr('time') ) / (0.5 / 100);
-			console.log(percent)
 			$('.bTitle',this).css('background-color','rgba(255,0,0,'+(percent/100)+')');
 		});
 		
@@ -263,7 +274,7 @@ switch ($e->name){
 	}
 	
 	#bDebug{
-		background: none repeat scroll 0 0 rgba(0, 0, 0, 0.3);
+		background: none repeat scroll 0 0 #B2B2B2;
 		bottom: 0;
 		color: black;
 		font-family: arial;
