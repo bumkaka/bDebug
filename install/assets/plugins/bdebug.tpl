@@ -5,7 +5,7 @@
  * just make MODx evo is easy
  *
  * @category    plugin
- * @version     0.1
+ * @version     0.3
  * @author		By Bumkaka from modx.im
  * @internal    @properties 
  * @internal    @events OnWebPageInit,OnWebPagePrerender,OnPageNotFound
