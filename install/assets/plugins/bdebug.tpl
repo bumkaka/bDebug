@@ -21,7 +21,6 @@
 }
 
 
-
 if (empty($_SESSION['mgrInternalKey'])) return;
 
 $e = &$modx->event; 
@@ -117,7 +116,7 @@ switch ($e->name){
 	
 	$_SESSION['SQL'] = $SQL;
 	
-	$modx->CustomDebug = print_r($SQL,true);
+	//$modx->CustomDebug = print_r($SQL,true);
 	
 	ob_start();
 ?>
@@ -128,9 +127,26 @@ switch ($e->name){
 	<div class="bPopup bDebugPopup"><?=$modx->queryCode;?></div>
 	<div class="bPopup bCustomPopup"><?php
 	if ( !empty($_SESSION['bDebug'])){
+		echo '<fieldset><legend>Logs</legend>';
 		foreach($_SESSION['bDebug'] as $log){
 			echo '<div class="bCodeBlock"><div class="bTitle">'.$log['title'].'</div><div class="bCode">'.$log['code'].'</div></div>';
 		}
+		echo '</fieldset>';
+	}
+	$_SESSION['bDebug'] = array();
+	bLog('$_SESSION',$_SESSION);
+	bLog('$_COOKIE',$_COOKIE);
+	bLog('$_GET',$_GET);
+	bLog('$_POST',$_POST);
+	bLog('$_SERVER',$_SERVER);
+	
+	if ( !empty($_SESSION['bDebug'])){
+		echo '<fieldset><legend>GLOBALS</legend>';
+
+		foreach($_SESSION['bDebug'] as $log){
+			echo '<div class="bCodeBlock" style="background:#ddd"><div class="bTitle">'.$log['title'].'</div><div class="bCode">'.$log['code'].'</div></div>';
+		}
+		echo '</fieldset>';
 	}
 		?></div>
 	<a class="bButton bCustomPopupA" href=".bCustomPopup">Logs</a>
@@ -157,7 +173,7 @@ switch ($e->name){
 			ind = index+1;
 			SQL.push( '<div class="bCodeBlock"><div class="bTitle" time="'+time+'">Query #'+ind+' - '+time+' sec</div><div class="bCode">'+tmp.html()+'</div></div>' )
 		});
-		$('.bDebugPopup').html( $( SQL.join(' ') ) );
+		$('.bDebugPopup').html( '<fieldset><legend>SQL query`s</legend>'+$('<div></div>').append( $( SQL.join(' ')).clone() ).html() +'</fieldset>' );
 		
 		
 		/*
@@ -246,7 +262,7 @@ switch ($e->name){
 		position: absolute;
 		width: 700px;
 		border-radius: 4px;
-		border: 2px solid rgba(0,0,0,0.56);
+		border: 1px solid rgba(0,0,0,0.56);
 	}
 	
 	
@@ -258,6 +274,10 @@ switch ($e->name){
 	
 	.bPopup.DebugOpened{
 		display:block;		
+	}
+	#bDebug fieldset{
+		border:2px groove grey;
+		background:threedface;
 	}
 	
 	#bDebug{
