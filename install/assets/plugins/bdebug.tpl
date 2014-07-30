@@ -13,7 +13,7 @@
  * @internal    @modx_category Manager and Admin
  * @internal    @installset base
  */
- if ( !function_exists('bLog') ){
+if ( !function_exists('bLog') ){
 	function bLog($title,$code){
 		$code = is_array($code)?'<pre>'.print_r($code,true).'</pre>':$code;
 		$_SESSION['bDebug'][] = array('title'=>$title, 'code'=>$code);
@@ -111,7 +111,7 @@ switch ($e->name){
 	$Temp1 = explode('</legend>',$modx->queryCode); 
 	
 	foreach($Temp1 as $key=>$value){
-		$Temp2 = explode('<',$value);
+		$Temp2 = explode('<br',$value);
 		if (!empty($Temp2[0])) $SQL[] = trim($Temp2[0]);	
 	}
 	
