@@ -30,7 +30,7 @@ switch ($e->name){
 		case 'bdebugGetResult':	
 		$tstart = $modx->getMicroTime();
 		//echo $_SESSION['SQL'][$_GET['sql']].'<br/>';
-		if (!$result = @$modx->db->query($_SESSION['SQL'][$_GET['sql']-1])){//@ mysql_query($_POST['sql'], $modx->db->conn)) {
+		if (!$result = @$modx->db->query($_SESSION['SQL'][$_GET['sql']])){//@ mysql_query($_POST['sql'], $modx->db->conn)) {
 			echo  mysql_error($modx->db->conn);
 		} else {
 			$tend = $modx->getMicroTime();
@@ -58,7 +58,7 @@ switch ($e->name){
 			echo $table;
 		}
 		
-		if (!$result = @$modx->db->query('EXPLAIN '.$_SESSION['SQL'][$_GET['sql']-1])){//@ mysql_query($_POST['sql'], $modx->db->conn)) {
+		if (!$result = @$modx->db->query('EXPLAIN '.$_SESSION['SQL'][$_GET['sql']])){//@ mysql_query($_POST['sql'], $modx->db->conn)) {
 			echo  mysql_error($modx->db->conn);
 		} else {
 			$tend = $modx->getMicroTime();
