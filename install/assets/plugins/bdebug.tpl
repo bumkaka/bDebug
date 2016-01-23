@@ -1,19 +1,21 @@
 //<?php
 /**
- * bDebug 
+ * bDebug
  * 
  * just make MODx evo is easy
  *
  * @category    plugin
- * @version     0.3
- * @author		By Bumkaka from modx.im
- * @internal    @properties 
+ * @version     0.3.1
+ * @author		Bumkaka
+ * @internal    @properties;
  * @internal    @events OnWebPageInit,OnWebPagePrerender,OnPageNotFound
- * @internal	@properties 
  * @internal    @modx_category Manager and Admin
  * @internal    @installset base
  */
-if ( !function_exists('bLog') ){
+ 
+ 
+ 
+ if ( !function_exists('bLog') ){
 	function bLog($title,$code){
 		$code = is_array($code)?'<pre>'.print_r($code,true).'</pre>':$code;
 		$_SESSION['bDebug'][] = array('title'=>$title, 'code'=>$code);
@@ -26,7 +28,7 @@ if (empty($_SESSION['mgrInternalKey'])) return;
 $e = &$modx->event; 
 switch ($e->name){
 	case 'OnPageNotFound':
-	switch($_GET['q']){
+	switch(trim($_GET['q'],'/')){
 		case 'bdebugGetResult':	
 		$tstart = $modx->getMicroTime();
 		//echo $_SESSION['SQL'][$_GET['sql']].'<br/>';
@@ -158,6 +160,9 @@ switch ($e->name){
 
 <script>
 	(function($){
+		
+		
+		
 		if ( $('.bCustomPopup').html() == '' ) $('.bCustomPopupA').remove();
 		/*
 		* Create new formated list
@@ -172,35 +177,29 @@ switch ($e->name){
 			time = time.toFixed(5)
 			$('legend',tmp).remove();
 			ind = index+1;
-			SQL.push( '<div class="bCodeBlock"><div class="bTitle" time="'+time+'">Query #'+ind+' - '+time+' sec</div><div class="bCode">'+tmp.html()+'</div></div>' )
+			
+			var Snippet = '';
+
+			
+			arr = tmp.html().split('<br>').forEach(function(el, index, array){
+				if ( el.indexOf('Current Snippet') != -1 ){
+					Snippet = el.split('=&gt;')[1].split(' ').join('');	
+				}
+			});
+			
+			
+			SQL.push( '<div class="bCodeBlock"><div class="bTitle" time="'+time+'"><b>'+Snippet+'</b> - Query #'+ind+' - '+time+' sec</div><div class="bCode">'+tmp.html()+'</div></div>' )
 		});
 		$('.bDebugPopup').html( '<fieldset><legend>SQL query`s</legend>'+$('<div></div>').append( $( SQL.join(' ')).clone() ).html() +'</fieldset>' );
 		
 		
-		/*
-		* Slide by click on .bTitle
-		*/
-		$('.bTitle').click(function(){
-			$(this).parent().find('.bCode').slideToggle("fast");
-		});
 		
 		
-		/*
-		* Get modal executed query
-		*/
-		$('.bDebugPopup .bCode').click(function(){
-			window.open('/bdebugGetResult?sql='+$(this).parent().index(), 'SQL Result', "height=400,width=600,scrollbars=yes");
-		})
 		
 		
-		/*
-		* Show/hide popup
-		*/
-		$('.bButton').click(function(){
-			$( $(this).attr('href') ).siblings('.bPopup').removeClass('DebugOpened');
-			$( $(this).attr('href') ).toggleClass('DebugOpened');
-			return false;
-		})
+		
+		
+		
 		
 		/*
 		* Higlight block with slow query
@@ -220,7 +219,34 @@ switch ($e->name){
 		})
 	})(jQuery);
 </script>
-
+<script>
+	(function($){
+		/*
+		* Get modal executed query
+		*/
+		$('.bDebugPopup .bCode').click(function(){
+			window.open('/bdebugGetResult?sql='+$(this).parent().index(), 'SQL Result', "height=400,width=600,scrollbars=yes");
+		})
+		
+		/*
+		* Show/hide popup
+		*/
+		$(document).on('click','.bButton',function( e ){
+			e.preventDefault();
+			$( $(this).attr('href') ).siblings('.bPopup').removeClass('DebugOpened');
+			$( $(this).attr('href') ).toggleClass('DebugOpened');
+			return false;
+		});
+		
+		/*
+		* Slide by click on .bTitle
+		*/
+		$('.bTitle').click(function(){
+			$(this).parent().find('.bCode').slideToggle("fast");
+		});
+		
+	})(jQuery);
+</script>
 
 <style>
 	.bCodeBlock{
@@ -338,7 +364,7 @@ switch ($e->name){
 	//echo $out;
 	
 	if ( strpos( $modx->documentOutput,'jquery') == false ) {
-		$out = '<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
+		$out = '<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
 				<script>jQuery.noConflict()</script>
 		'.$out;
 	}
